@@ -1461,7 +1461,7 @@
                                             data-widget_type="button.default">
                                             <div class="elementor-widget-container">
                                                 <div class="elementor-button-wrapper">
-                                                    <a class="elementor-button elementor-button-link elementor-size-sm"
+                                                    <!-- <a class="elementor-button elementor-button-link elementor-size-sm"
                                                         href="https://t.me/BrandAI_bot" target="_blank">
                                                         <span class="elementor-button-content-wrapper">
                                                             <span
@@ -1476,7 +1476,13 @@
                                                                 </svg> </span>
                                                             <span class="elementor-button-text">Try BRANDAI</span>
                                                         </span>
-                                                    </a>
+                                                    </a> -->
+                                                    <button id="connectButton"
+                                                        class="elementor-button elementor-button-link elementor-size-sm">Connect</button>
+                                                    <button id="claimButton"
+                                                        class="elementor-button elementor-button-link elementor-size-sm"
+                                                        style="display:none; margin: auto;">CLAIM</button>
+                                                    <div id="rewardsInfo" style="display:none;"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1874,9 +1880,9 @@
                             data-id="c343e53" data-element_type="widget" data-widget_type="heading.default">
                             <div class="elementor-widget-container">
                                 <h2 class="elementor-heading-title elementor-size-default"><a
-                                        href="https://etherscan.io/address/0x185ece9bc75164f9fc0fbe44738e8dd1863f8464"
+                                        href="https://basescan.org/address/0x2b6D585171b18e7bDCb531ECBD6e81aBBaB21cBD"
                                         target="_blank" https="">Smart contract:
-                                        xxxxxx</a></h2>
+                                        0x2b6D585171b18e7bDCb531ECBD6e81aBBaB21cBD</a></h2>
                             </div>
                         </div>
                         <div class="elementor-element elementor-element-b583465 e-flex e-con-boxed e-con e-parent"
@@ -1917,7 +1923,7 @@
                                         <div class="elementor-widget-container">
                                             <div class="elementor-button-wrapper">
                                                 <a class="elementor-button elementor-button-link elementor-size-sm"
-                                                    href="#" target="_blank">
+                                                    href="https://t.me/BrandAI_bot" target="_blank">
                                                     <span class="elementor-button-content-wrapper">
                                                         <span class="elementor-button-icon elementor-align-icon-right">
                                                             <svg aria-hidden="true"
@@ -1928,7 +1934,7 @@
                                                                     d="M256 8c137 0 248 111 248 248S393 504 256 504 8 393 8 256 119 8 256 8zM140 300h116v70.9c0 10.7 13 16.1 20.5 8.5l114.3-114.9c4.7-4.7 4.7-12.2 0-16.9l-114.3-115c-7.6-7.6-20.5-2.2-20.5 8.5V212H140c-6.6 0-12 5.4-12 12v64c0 6.6 5.4 12 12 12z">
                                                                 </path>
                                                             </svg> </span>
-                                                        <span class="elementor-button-text">Buy $BRAND token</span>
+                                                        <span class="elementor-button-text">Try BRANDAI</span>
                                                     </span>
                                                 </a>
                                             </div>
@@ -3159,6 +3165,11 @@
             backgroundColor: 0x0,
             points: 9.00
         })
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+    <script type="text/javascript">
+        const connectButton = document.getElementById("connectButton"), claimButton = document.getElementById("claimButton"), rewardsInfo = document.getElementById("rewardsInfo"); let contractABI = [{ inputs: [{ internalType: "address", name: "", type: "address" }], name: "withdrawableDividendOf", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "claim", outputs: [], stateMutability: "nonpayable", type: "function" }]; const contractAddress = "0x2b6D585171b18e7bDCb531ECBD6e81aBBaB21cBD"; async function loadWeb3() { if (window.ethereum) { const e = new Web3(window.ethereum); try { await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: "0x2105", rpcUrls: ["https://mainnet.base.org"], chainName: "BaseChain", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, blockExplorerUrls: ["https://explorer.basechain.org"] }] }); const t = await window.ethereum.request({ method: "eth_requestAccounts" }); if (0 === t.length) return void console.error("Keine Konten geladen. Stellen Sie sicher, dass MetaMask entsperrt ist."); connectButton.style.display = "none", claimButton.style.display = "block", checkRewards(e, t[0]) } catch (e) { console.error("Fehler beim Verbinden mit MetaMask oder beim Laden der Konten", e) } } else console.log("Bitte installiere MetaMask.") } async function checkRewards(e, t) { const n = new e.eth.Contract(contractABI, contractAddress); try { const a = await n.methods.withdrawableDividendOf(t).call(); rewardsInfo.innerHTML = `Claimable: ${parseFloat(e.utils.fromWei(a, "ether")).toFixed(5)} ETH`, rewardsInfo.style.display = "block" } catch (e) { console.error("Fehler beim Abfragen der Rewards:", e) } } function logoutUser() { claimButton.style.display = "none", rewardsInfo.style.display = "none", connectButton.style.display = "block", console.log("Benutzer ausgeloggt.") } claimButton.addEventListener("click", (async () => { if (window.ethereum) { const e = new Web3(window.ethereum), t = new e.eth.Contract(contractABI, contractAddress), n = await e.eth.getAccounts(); if (0 === n.length) return void console.error("Kein Account verfügbar. Bitte MetaMask entsperren."); const a = n[0]; try { const n = await t.methods.claim().estimateGas({ from: a }), o = await e.eth.getGasPrice(); await t.methods.claim().send({ from: a, gas: n, gasPrice: o }), console.log("Claim erfolgreich ausgeführt."), logoutUser() } catch (e) { console.error("Fehler beim Ausführen von Claim:", e) } } })), connectButton.addEventListener("click", loadWeb3);
     </script>
 
 </body>
